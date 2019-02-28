@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Table, Grid, Col, Row, Badge } from 'react-bootstrap';
 import fetchHelper from '../serverHelpers/FetchHelper';
 
-class NbaBoxScore extends Component {
+class MlbBoxScore extends Component {
 
   constructor(props) {
     super(props);
@@ -11,8 +11,14 @@ class NbaBoxScore extends Component {
       gameState : null,
       homeName : null,
       awayName : null,
-      homeQuarterScores : null,
-      awayQuarterScores : null,
+      homeRuns: null,
+      awayRuns: null,
+      homeHits: null,
+      awayHits: null,
+      homeErrors: null,
+      awayErrors: null,
+      homeInningScores : null,
+      awayInningScores : null,
       width: 0,
       height: 0
     }
@@ -38,16 +44,22 @@ class NbaBoxScore extends Component {
   }
 
   consumeFeed() {
-    fetchHelper('/consumeNbaFeed', 'GET').then((response) => {
+    fetchHelper('/consumeMlbFeed', 'GET').then((response) => {
       const feed = response.data;
 
       this.setState({
         gameState: 'pregame',//feed.event_information.status,
         homeName: feed.home_team.abbreviation,
         awayName: feed.away_team.abbreviation,
-        homeQuarterScores: feed.home_period_scores,
-        awayQuarterScores: feed.away_period_scores,
-        startTime: feed.event_information.start_date_time
+        homeRuns: feed.home_batter_totals.runs,
+        awayRuns: feed.away_batter_totals.runs,
+        homeHits: feed.home_batter_totals.hits,
+        awayHits: feed.away_batter_totals.hits,
+        homeErrors: feed.home_errors,
+        awayErrors: feed.away_errors,
+        homeInningScores: feed.home_period_scores,
+        awayInningScores: feed.away_period_scores,
+        startTime: feed.event_information.start_date_time,
       });
     });
   }
@@ -71,6 +83,32 @@ class NbaBoxScore extends Component {
     return total;
   }
 
+  getHomeInnings() {
+    if (this.state.homeInningScores !== null) {
+      var innings = [];
+      for (let i=0;i<this.state.homeInningScores.length;i++) {
+        innings.push(
+          <td>{this.state.homeInningScores[i]}</td>
+        );
+      }
+      return innings;
+    }
+    return null;
+  }
+
+  getAwayInnings() {
+    if (this.state.awayInningScores !== null) {
+      var innings = [];
+      for (let i=0;i<this.state.awayInningScores.length;i++) {
+        innings.push(
+          <td>{this.state.awayInningScores[i]}</td>
+        );
+      }
+      return innings;
+    }
+    return null;
+  }
+
   render() {
 
     const boxScore = (
@@ -80,29 +118,34 @@ class NbaBoxScore extends Component {
           <thead>
             <tr>
               <td></td>
-              <td>Q1</td>
-              <td>Q2</td>
-              <td>Q3</td>
-              <td>Q4</td>
-              <th>Total</th>
+              <td>1</td>
+              <td>2</td>
+              <td>3</td>
+              <td>4</td>
+              <td>5</td>
+              <td>6</td>
+              <td>7</td>
+              <td>8</td>
+              <td>9</td>
+              <th>R</th>
+              <th>H</th>
+              <th>E</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <th>{this.state.homeName}</th>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.homeQuarterScores[0]}</td>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.homeQuarterScores[1]}</td>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.homeQuarterScores[2]}</td>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.homeQuarterScores[3]}</td>
-              <th>{(this.state.homeQuarterScores === null) ? '' : this.getTotalScore(this.state.homeQuarterScores)}</th>
+              {this.getHomeInnings()}
+              <th>{this.state.homeRuns}</th>
+              <th>{this.state.homeHits}</th>
+              <th>{this.state.homeErrors}</th>
             </tr>
             <tr>
               <th>{this.state.awayName}</th>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.awayQuarterScores[0]}</td>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.awayQuarterScores[1]}</td>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.awayQuarterScores[2]}</td>
-              <td>{(this.state.homeQuarterScores === null) ? '' : this.state.awayQuarterScores[3]}</td>
-              <th>{(this.state.homeQuarterScores === null) ? '' : this.getTotalScore(this.state.homeQuarterScores)}</th>
+              {this.getAwayInnings()}
+              <th>{this.state.awayRuns}</th>
+              <th>{this.state.awayHits}</th>
+              <th>{this.state.awayErrors}</th>
             </tr>
           </tbody>
         </Table>
@@ -113,4 +156,4 @@ class NbaBoxScore extends Component {
   }
 };
 
-export default NbaBoxScore;
+export default MlbBoxScore;
